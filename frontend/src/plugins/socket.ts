@@ -1,7 +1,9 @@
 import { reactive } from "vue";
 import { io } from "socket.io-client";
 
-export const state: { connected: boolean, message: string[] } = reactive({
+export const state: { id: string, room:string, connected: boolean, message: string[] } = reactive({
+  id: "",
+  room:"default",
   connected: false,
   message: [],
 });
@@ -17,13 +19,20 @@ export const socket = io(
 );
 
 socket.on("connect", () => {
+  state.id = socket.id;
   state.connected = true;
 });
 
 socket.on("disconnect", () => {
+  state.id = "";
+  state.room = ""
   state.connected = false;
 });
 
 socket.on("chat message", (message: string) => {
+  state.message.push(message);
+});
+
+socket.on("information", (message: string) => {
   state.message.push(message);
 });
