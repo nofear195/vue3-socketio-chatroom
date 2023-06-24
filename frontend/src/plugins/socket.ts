@@ -1,38 +1,60 @@
-import { reactive } from "vue";
+import { reactive, onMounted, onUnmounted } from "vue";
 import { io } from "socket.io-client";
 
-export const state: { id: string, room:string, connected: boolean, message: string[] } = reactive({
-  id: "",
-  room:"default",
-  connected: false,
-  message: [],
-});
+export type SocketState = {
+  connected: boolean,
+  id: string,
+  room: string,
+  message: string[],
+}
 
-// "undefined" means the URL will be computed from the `window.location` object
-const URL: string = "http://localhost:3000";
-
-export const socket = io(
-  URL,
-  {
-    autoConnect: false,
+class Information {
+  id: string;
+  message: string;
+  roomUsers: string[];
+  constructor(id: string, message?: string, roomUsers?: string[]) {
+      this.id = id;
+      this.message = message ? message : "";
+      this.roomUsers = roomUsers ? roomUsers : [];
   }
-);
+}
 
-socket.on("connect", () => {
-  state.id = socket.id;
-  state.connected = true;
-});
+export default function useSocket() {
 
-socket.on("disconnect", () => {
-  state.id = "";
-  state.room = ""
-  state.connected = false;
-});
+  const socketState: SocketState = reactive({
+    connected: false,
+    id: "",
+    room: "",
+    message: [],
+  })
 
-socket.on("chat message", (message: string) => {
-  state.message.push(message);
-});
+  const URL: string = "http://localhost:3000";
 
-socket.on("information", (message: string) => {
-  state.message.push(message);
-});
+  const socket = io(URL, { autoConnect: false, });
+
+  socket.on("connect", () => {
+    socketState.connected = true;
+    socketState.id = socket.id;
+  });
+
+  socket.on("disconnect", () => {
+    socketState.connected = false;
+    socketState.id = "";
+    socketState.room = "";
+  });
+
+  socket.on("chat message", (data: Information) => {
+    socketState.message.push(data.message);
+  });
+
+  socket.on("information", (data: Information) => {
+    socketState.message.push(data.message);
+  });
+
+  onMounted(() => socket.connect());
+  onUnmounted(() => socket.disconnect());
+
+  return { socketState, socket };
+
+}
+
