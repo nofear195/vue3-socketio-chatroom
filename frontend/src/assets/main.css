@@ -7,5 +7,10 @@
   margin: 0 auto;
   padding: 2rem;
   font-weight: normal;
-  background: aliceblue;
+}
+
+.flex-box-center{
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }

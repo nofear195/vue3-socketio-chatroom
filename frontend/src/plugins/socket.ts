@@ -1,36 +1,36 @@
 import { reactive, onMounted, onUnmounted } from "vue";
 import { io } from "socket.io-client";
 
+type Message = {
+  type: string;
+  content: string;
+}
+
+type Information = {
+  id: string;
+  message: Message;
+  roomUsers: string[];
+}
+
 export type SocketState = {
   connected: boolean,
   id: string,
   room: string,
-  message: string[],
+  message: Message[],
+  users:string[],
 }
 
-class Information {
-  id: string;
-  message: string;
-  roomUsers: string[];
-  constructor(id: string, message?: string, roomUsers?: string[]) {
-      this.id = id;
-      this.message = message ? message : "";
-      this.roomUsers = roomUsers ? roomUsers : [];
-  }
-}
-
-export default function useSocket() {
+export default function useSocket(url: string, room?: string) {
 
   const socketState: SocketState = reactive({
     connected: false,
     id: "",
-    room: "",
+    room: room ? room : "",
     message: [],
+    users: [],
   })
 
-  const URL: string = "http://localhost:3000";
-
-  const socket = io(URL, { autoConnect: false, });
+  const socket = io(url, { autoConnect: false, });
 
   socket.on("connect", () => {
     socketState.connected = true;
@@ -43,12 +43,13 @@ export default function useSocket() {
     socketState.room = "";
   });
 
-  socket.on("chat message", (data: Information) => {
-    socketState.message.push(data.message);
-  });
-
   socket.on("information", (data: Information) => {
-    socketState.message.push(data.message);
+    const message: Message = data.message;
+    if(message.type !== 'system'){
+      message.type = data.id === socketState.id ? 'source' : 'destination';
+    }
+    socketState.message.push(message);
+    socketState.users = data.roomUsers;
   });
 
   onMounted(() => socket.connect());

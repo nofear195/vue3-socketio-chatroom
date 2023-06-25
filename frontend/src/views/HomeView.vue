@@ -28,7 +28,7 @@ const inputText: Ref<string> = ref("");
 
 function joinChat(): void {
   if (inputText.value === "") return;
-  rooms.push(inputText.value);
+  rooms.add(inputText.value);
   router.push({
     name: 'chat-room',
     query: { room: inputText.value }
