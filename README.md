@@ -1,7 +1,6 @@
 # Vue3 Socket.IO Chatroom
 
-This is a Chat Room application built using Vue.js 3 for the frontend, Express.js for the backend, and Socket.io for real-time message passing in individual chat rooms.
-
+This is a Chat Room application built using Vue.js 3 for the frontend, Express.js for the backend, and Socket.io for real-time message passing in individual chat rooms. The application allows users to open multiple chat windows simultaneously, providing a seamless real-time chatting experience.
 ## Features
 
 - Multiple chat rooms: Users can create and join different chat rooms.
