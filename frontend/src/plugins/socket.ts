@@ -52,6 +52,11 @@ export default function useSocket(url: string, room?: string) {
     socketState.users = data.roomUsers;
   });
 
+  socket.on("connect_error", (err:Error) =>{
+    const message: Message = {type:'system',content:err.message}
+    socketState.message.push(message)
+  })
+
   onMounted(() => socket.connect());
   onUnmounted(() => socket.disconnect());
 

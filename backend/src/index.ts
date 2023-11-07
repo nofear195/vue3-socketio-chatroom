@@ -13,6 +13,14 @@ const io: SocketIOServer = new SocketIOServer(httpServer, {
 
 const port = 3000;
 
+io.use((socket,next)=>{
+    const token = socket.handshake.query.token as string;
+
+    if(token !== "auth_token") return next(new Error('Unauthorized token'));
+
+    next()
+})
+
 roomEvent(io);
 
 httpServer.listen(port, () => {
